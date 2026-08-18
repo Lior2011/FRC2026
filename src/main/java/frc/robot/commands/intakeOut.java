@@ -28,6 +28,7 @@ public class intakeOut extends Command {
     if (timer.hasElapsed(2)){
       System.out.println("Start");
       intake.setVoltage(8);
+      //hi
     }
     else{
       intake.setVoltage(5);

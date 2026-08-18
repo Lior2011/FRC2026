@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private Intake intake = new Intake();
+  private final intakeIn intakeIn = new intakeIn(intake);
+  private final intakeOut intakeOut = new intakeOut(intake);
   
   
     private final PS5Controller driverController = new PS5Controller(0);
@@ -35,8 +37,8 @@ public class RobotContainer {
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
     
-    m_driverController.b().whileTrue(new intakeIn(intake));
-    m_driverController.a().whileTrue(new intakeOut(intake));
+    m_driverController.b().whileTrue(intakeIn);
+    m_driverController.a().whileTrue(intakeOut);
 
 
     
