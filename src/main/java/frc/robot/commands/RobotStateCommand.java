@@ -1,4 +1,5 @@
 package frc.robot.commands;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 
@@ -9,7 +10,7 @@ import frc.robot.subsystems.Hood.HoodConstants;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.ShooterConstants;
 
-public class RobotStateCommand extends Command{
+public class RobotStateCommand extends Command {
     public enum State {
         IDLE,
         INTAKE,
@@ -24,8 +25,7 @@ public class RobotStateCommand extends Command{
     private final Hood hood;
     private final Shooter shooter;
 
-    
-       public RobotStateCommand() {
+    public RobotStateCommand() {
 
         feeder = Feeder.getInstance();
         hood = Hood.getInstance();
@@ -35,11 +35,13 @@ public class RobotStateCommand extends Command{
         addRequirements(hood);
         addRequirements(shooter);
     }
+
     @Override
     public void initialize() {
         state = State.IDLE;
     }
-     @Override
+
+    @Override
     public void execute() {
 
         switch (state) {
@@ -63,42 +65,37 @@ public class RobotStateCommand extends Command{
             case OPEN_WALLS:
                 runIdle();
                 break;
-            
+
             case INTAKE:
                 runIdle();
                 break;
 
-            }
-            
-            }
-            
-            
-    public void setState(State newState){
-     state = newState; }
+        }
 
-   private void runIdle() {
+    }
+
+    public void setState(State newState) {
+        state = newState;
+    }
+
+    private void runIdle() {
         feeder.setState(Feeder.State.IDLE);
         hood.setState(Hood.State.IDLE);
-        shooter.setState(Shooter.State.IDLE);
-
         if (isInAllianceArea()) {
-        shooter.setState(Shooter.State.WARM_UP);
-        }  
-        else {
-        shooter.setState(Shooter.State.IDLE);
+            shooter.setState(Shooter.State.WARM_UP);
+        } else {
+            shooter.setState(Shooter.State.IDLE);
         }
     }
 
     private void runHold() {
-        if(!hasBalls()){
-         setState(State.IDLE);
+        if (!hasBalls()) {
+            setState(State.IDLE);
         }
         feeder.setState(Feeder.State.HOLD);
         hood.setState(Hood.State.IDLE);
         shooter.setState(Shooter.State.IDLE);
-        
-           
-        
+
     }
 
     private void runShooting() {
@@ -109,8 +106,7 @@ public class RobotStateCommand extends Command{
 
         hood.setState(Hood.State.SHOOT);
 
-    
-     if (!hood.atShootPosition()) {
+        if (!hood.atShootPosition()) {
             shooter.setState(Shooter.State.IDLE);
             feeder.setState(Feeder.State.IDLE);
             return;
@@ -127,33 +123,28 @@ public class RobotStateCommand extends Command{
     }
 
     private void runEject() {
-        if(hasBalls()){
-         setState(State.IDLE);
+        if (!hasBalls()) {
+            setState(State.IDLE);
+        } else {
+            feeder.setState(Feeder.State.FORWARD);
+            hood.setState(Hood.State.EJECT);
+            shooter.setState(Shooter.State.EJECT);
         }
-        feeder.setState(Feeder.State.FORWARD);
-        hood.setState(Hood.State.EJECT);
-        shooter.setState(Shooter.State.EJECT);
-        
 
-        
     }
-
-    
-   
 
     private boolean hasBalls() {
         return !feeder.isEmpty();
     }
 
-    
-
     private boolean isInAllianceArea() {
         return true;
-        //קפלן אמרת רק שיהיה את זה ושזה לא צריך לעבוד בינתיים כי לא לימדת
+        // קפלן אמרת רק שיהיה את זה ושזה לא צריך לעבוד בינתיים כי לא לימדת
     }
-     private boolean isActivePeriod() {
+
+    private boolean isActivePeriod() {
         return true;
-        //כנל על זה
+        // כנל על זה
     }
 
     @Override
@@ -166,10 +157,3 @@ public class RobotStateCommand extends Command{
         setState(State.IDLE);
     }
 }
-
-        
-    
-
-     
-
-

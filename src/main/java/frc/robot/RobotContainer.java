@@ -15,55 +15,34 @@ import frc.robot.subsystems.Feeder.Feeder;
 import frc.robot.subsystems.Hood.Hood;
 import frc.robot.subsystems.Shooter.Shooter;;
 
-
-
 public class RobotContainer {
-  
+
   private final Feeder feeder = Feeder.getInstance();
   private final Shooter shooter = Shooter.getInstance();
   private final Hood hood = Hood.getInstance();
   private final CommandPS5Controller driverController = new CommandPS5Controller(PortMap.CONTROLLER);
   private final RobotStateCommand robotStateCommand = new RobotStateCommand();
 
-  
-    
-  
   public RobotContainer() {
-      
+
     configureBindings();
     robotStateCommand.schedule();
 
   }
 
   private void configureBindings() {
-    
 
     new Trigger(() -> driverController.circle().getAsBoolean() && !feeder.isEmpty())
-    .onTrue(new InstantCommand(() -> robotStateCommand.setState( RobotStateCommand.State.SHOOTING)
-    )
-    );
+        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.SHOOTING)));
     new Trigger(() -> driverController.cross().getAsBoolean())
-    .onTrue(new InstantCommand(() -> robotStateCommand.setState( RobotStateCommand.State.EJECT)
-    )
-    );
+        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.EJECT)));
     new Trigger(() -> driverController.touchpad().getAsBoolean())
-    .onTrue(new InstantCommand(() -> robotStateCommand.setState( RobotStateCommand.State.IDLE)
-    )
-    );
+        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.IDLE)));
     new Trigger(() -> !driverController.circle().getAsBoolean() && !feeder.isEmpty())
-    .onTrue(new InstantCommand(() -> robotStateCommand.setState( RobotStateCommand.State.HOLD)
-    )
-    );
-    
-    
-    
-    
-
-
-    
-
+        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.HOLD)));
+    new Trigger(() -> !driverController.triangle().getAsBoolean() && !feeder.isEmpty())
+        .onTrue(new InstantCommand(() -> hood.setState(Hood.State.HOMING)));
 
   }
 
-  
 }

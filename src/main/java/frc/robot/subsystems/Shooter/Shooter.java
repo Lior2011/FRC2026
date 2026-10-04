@@ -19,79 +19,76 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.MALog;
 import frc.robot.PortMap;
 
-
-public class Shooter extends SubsystemBase{
-  public enum State {
+public class Shooter extends SubsystemBase {
+    public enum State {
         IDLE,
         WARM_UP,
         SHOOT,
         EJECT
     }
-   private final VelocityVoltage velocityChange =  new VelocityVoltage(0);
+
+    private final VelocityVoltage velocityChange = new VelocityVoltage(0);
     public static Shooter shooter;
     private TalonFX shooterMotor;
     private TalonFX shooterSlave;
     TalonFXConfiguration shooterConfig;
 
-    
-
     private StrictFollower follower;
     private TalonFXConfiguration followerConfig;
-    private StatusSignal<Current> currentSignal;
     private StatusSignal<AngularVelocity> velocitySignal;
-    private StatusSignal<Voltage> voltageSignal;
-    
+
     private State state = State.IDLE;
-    
-    public Shooter(){
+
+    public Shooter() {
         shooterSlave = new TalonFX(PortMap.shooter.SLAVE_MOTOR);
-       shooterMotor = new TalonFX(PortMap.shooter.SHOOTER_MOTOR);
-       follower = new StrictFollower(PortMap.shooter.SHOOTER_MOTOR);
-       
-       shooterConfig = new TalonFXConfiguration();
-       followerConfig = new TalonFXConfiguration();
-       currentSignal = shooterMotor.getStatorCurrent();
-       velocitySignal = shooterMotor.getVelocity();
-       voltageSignal = shooterMotor.getMotorVoltage();
-       config();
+        shooterMotor = new TalonFX(PortMap.shooter.SHOOTER_MOTOR);
+        follower = new StrictFollower(PortMap.shooter.SHOOTER_MOTOR);
+
+        shooterConfig = new TalonFXConfiguration();
+        followerConfig = new TalonFXConfiguration();
+
+        velocitySignal = shooterMotor.getVelocity();
+
+        config();
     }
-    private void config(){
+
+    private void config() {
         shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-       followerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        followerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-     followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-     shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-     shooterConfig.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
-     followerConfig.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
+        shooterConfig.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
+        followerConfig.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO;
 
-     shooterConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.PICK_CURRENT_LIMIT;
-      followerConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.PICK_CURRENT_LIMIT;
+        shooterConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.PICK_CURRENT_LIMIT;
+        followerConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.PICK_CURRENT_LIMIT;
 
-     followerConfig.CurrentLimits.StatorCurrentLimit = ShooterConstants.STATOR_CURRENT_LIMIT;
-     shooterConfig.CurrentLimits.StatorCurrentLimit = ShooterConstants.STATOR_CURRENT_LIMIT;
+        followerConfig.CurrentLimits.StatorCurrentLimit = ShooterConstants.STATOR_CURRENT_LIMIT;
+        shooterConfig.CurrentLimits.StatorCurrentLimit = ShooterConstants.STATOR_CURRENT_LIMIT;
 
-
-
-     shooterMotor.getConfigurator().apply(shooterConfig);
-     shooterSlave.getConfigurator().apply(followerConfig);
+        shooterMotor.getConfigurator().apply(shooterConfig);
+        shooterSlave.getConfigurator().apply(followerConfig);
     }
-     public void setState(State newState) {
+
+    public void setState(State newState) {
         state = newState;
     }
-      public State getState() {
+
+    public State getState() {
         return state;
     }
-     public void setVelocity(double velocity) {
 
-       
+    public void setVelocity(double velocity) {
+
         shooterMotor.setControl(
-         velocityChange.withVelocity(velocity)
-        );
+                velocityChange.withVelocity(velocity));
 
         shooterSlave.setControl(follower);
     }
-     private void runState() {
+
+    private void runState() {
 
         switch (state) {
 
@@ -102,7 +99,7 @@ public class Shooter extends SubsystemBase{
 
             case WARM_UP:
                 shooterMotor.setControl(velocityChange.withVelocity(ShooterConstants.WARM_UP_VELOCITY)
-                 
+
                 );
 
                 shooterSlave.setControl(follower);
@@ -110,51 +107,47 @@ public class Shooter extends SubsystemBase{
 
             case SHOOT:
                 shooterMotor.setControl(velocityChange.withVelocity(ShooterConstants.SHOOT_VELOCITY)
-                    
-                );shooterSlave.setControl(follower);
+
+                );
+                shooterSlave.setControl(follower);
                 break;
 
             case EJECT:
                 shooterMotor.setControl(velocityChange.withVelocity(ShooterConstants.EJECT_VELOCITY)
-                    
+
                 );
 
                 shooterSlave.setControl(follower);
                 break;
         }
     }
-   
 
     public void stop() {
-      setState(State.IDLE);
-      shooterSlave.setControl(follower);
-    
+        setState(State.IDLE);
+        shooterSlave.setControl(follower);
+
     }
+
     public double getVelocity() {
         return velocitySignal.getValueAsDouble();
     }
-    public double getCurrent() {
-        return currentSignal.getValueAsDouble();
-    }
+
     public boolean atShootVelocity() {
-    return Math.abs(getVelocity() - ShooterConstants.SHOOT_VELOCITY) == 0;
-}
-
-
-
-    public static Shooter getInstance(){
-    if (shooter == null){
-      shooter = new Shooter();
+        return Math.abs(getVelocity() - ShooterConstants.SHOOT_VELOCITY) == 0;
     }
-    return shooter;
 
-  }
-  @Override
-  public void periodic() {
-    runState();
-    BaseStatusSignal.refreshAll(velocitySignal, voltageSignal, currentSignal);}
+    public static Shooter getInstance() {
+        if (shooter == null) {
+            shooter = new Shooter();
+        }
+        return shooter;
 
-  
-  
+    }
+
+    @Override
+    public void periodic() {
+        runState();
+        BaseStatusSignal.refreshAll(velocitySignal);
+    }
 
 }

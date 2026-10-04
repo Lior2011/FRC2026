@@ -20,107 +20,95 @@ import frc.robot.PortMap;
 import frc.robot.subsystems.Shooter.ShooterConstants;
 import edu.wpi.first.wpilibj.DigitalInput;
 
-public class Feeder extends SubsystemBase{
+public class Feeder extends SubsystemBase {
   public enum State {
-        IDLE,
-        FORWARD,
-        BACKWARD,
-        HOLD
-       
-    }
+    IDLE,
+    FORWARD,
+    BACKWARD,
+    HOLD
 
-  
+  }
+
   private static Feeder feeder;
   private TalonFX feederMotor;
   private TalonFXConfiguration feederConfig;
   private DigitalInput feederSensor;
-  private  StatusSignal<Current> currentSignal;
-  private  StatusSignal<AngularVelocity> velocitySignal;
-  private  StatusSignal<Voltage> voltageSignal;
   private State state = State.IDLE;
 
-  public Feeder(){
+  public Feeder() {
     feederMotor = new TalonFX(PortMap.feeder.FEEDER_MOTOR);
-    currentSignal = feederMotor.getStatorCurrent();
-    velocitySignal = feederMotor.getVelocity();
-    voltageSignal = feederMotor.getMotorVoltage();
+
     feederSensor = new DigitalInput(PortMap.feeder.FEEDER_SENSOR);
     feederConfig = new TalonFXConfiguration();
     config();
 
   }
-  private void config(){
-  feederConfig.CurrentLimits.SupplyCurrentLimit = FeederConstants.PICK_CURRENT_LIMIT;
-  feederConfig.CurrentLimits.StatorCurrentLimit = FeederConstants.STATOR_CURRENT_LIMIT;
-  feederConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-  feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-  feederConfig.Feedback.SensorToMechanismRatio = FeederConstants.GEAR_RATIO;
-  feederMotor.getConfigurator().apply(feederConfig);
-  
+
+  private void config() {
+    feederConfig.CurrentLimits.SupplyCurrentLimit = FeederConstants.PICK_CURRENT_LIMIT;
+    feederConfig.CurrentLimits.StatorCurrentLimit = FeederConstants.STATOR_CURRENT_LIMIT;
+    feederConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    feederConfig.Feedback.SensorToMechanismRatio = FeederConstants.GEAR_RATIO;
+    feederMotor.getConfigurator().apply(feederConfig);
+
   }
+
   public void setState(State newState) {
-        state = newState;
-    }
+    state = newState;
+  }
+
   public State getState() {
-        return state;
-    }
+    return state;
+  }
+
   private void runState() {
 
-        switch (state) {
+    switch (state) {
 
-            case IDLE:
-                feederMotor.stopMotor();
-                break;
+      case IDLE:
+        feederMotor.stopMotor();
+        break;
 
-            case FORWARD:
-                feederMotor.set(FeederConstants.FORWARD_SPEED);
-                
-                break;
+      case FORWARD:
+        feederMotor.set(FeederConstants.FORWARD_SPEED);
 
-            case BACKWARD:
-                feederMotor.set(FeederConstants.BACKWARD_SPEED);
-                
-                break;
+        break;
 
-            case HOLD:
-                feederMotor.set(FeederConstants.HOLD_SPEED);
+      case BACKWARD:
+        feederMotor.set(FeederConstants.BACKWARD_SPEED);
 
-              
-                break;
-        }
+        break;
+
+      case HOLD:
+        feederMotor.set(FeederConstants.HOLD_SPEED);
+
+        break;
     }
-  public void set(double speed) {
-        feederMotor.set(speed);
-    }
+  }
 
-    public void stop() {
-        setState(State.IDLE);
-    }
+  public void setSpeed(double speed) {
+    feederMotor.set(speed);
+  }
 
-    public boolean isEmpty() {
-        return feederSensor.get();
-    }
+  public void stop() {
+    setState(State.IDLE);
+  }
 
-    public double getCurrent() {
-        return currentSignal.getValueAsDouble();
-    }
+  public boolean isEmpty() {
+    return feederSensor.get();
+  }
 
-    public double getVelocity() {
-        return velocitySignal.getValueAsDouble();
-    }
-    public double getVoltage() {
-        return voltageSignal.getValueAsDouble();
-    }
-  
-  public static Feeder getInstance(){
-    if (feeder == null){
+  public static Feeder getInstance() {
+    if (feeder == null) {
       feeder = new Feeder();
     }
     return feeder;
   }
+
   @Override
   public void periodic() {
     runState();
-    BaseStatusSignal.refreshAll(velocitySignal, voltageSignal, currentSignal);}
- 
+
+  }
 }
