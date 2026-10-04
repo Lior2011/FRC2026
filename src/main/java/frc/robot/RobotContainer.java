@@ -5,40 +5,59 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.Intake.Intake;
-import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.intakeIn;
-import frc.robot.commands.intakeOut;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.RobotStateCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Feeder.Feeder;
+import frc.robot.subsystems.Hood.Hood;
+import frc.robot.subsystems.Shooter.Shooter;;
 
 
 
 public class RobotContainer {
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private Intake intake = new Intake();
-  private final intakeIn intakeIn = new intakeIn(intake);
-  private final intakeOut intakeOut = new intakeOut(intake);
   
+  private final Feeder feeder = Feeder.getInstance();
+  private final Shooter shooter = Shooter.getInstance();
+  private final Hood hood = Hood.getInstance();
+  private final CommandPS5Controller driverController = new CommandPS5Controller(PortMap.CONTROLLER);
+  private final RobotStateCommand robotStateCommand = new RobotStateCommand();
+
   
-    private final PS5Controller driverController = new PS5Controller(0);
+    
   
-    private final CommandXboxController m_driverController =
-        new CommandXboxController(OperatorConstants.kDriverControllerPort);
-  
-    public RobotContainer() {
+  public RobotContainer() {
       
     configureBindings();
+    robotStateCommand.schedule();
 
   }
 
   private void configureBindings() {
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
     
-    m_driverController.b().whileTrue(intakeIn);
-    m_driverController.a().whileTrue(intakeOut);
+
+    new Trigger(() -> driverController.circle().getAsBoolean() && !feeder.isEmpty())
+    .onTrue(new InstantCommand(() -> robotStateCommand.setState( RobotStateCommand.State.SHOOTING)
+    )
+    );
+    new Trigger(() -> driverController.cross().getAsBoolean())
+    .onTrue(new InstantCommand(() -> robotStateCommand.setState( RobotStateCommand.State.EJECT)
+    )
+    );
+    new Trigger(() -> driverController.touchpad().getAsBoolean())
+    .onTrue(new InstantCommand(() -> robotStateCommand.setState( RobotStateCommand.State.IDLE)
+    )
+    );
+    new Trigger(() -> !driverController.circle().getAsBoolean() && !feeder.isEmpty())
+    .onTrue(new InstantCommand(() -> robotStateCommand.setState( RobotStateCommand.State.HOLD)
+    )
+    );
+    
+    
+    
+    
 
 
     
@@ -46,7 +65,5 @@ public class RobotContainer {
 
   }
 
-  public Command getAutonomousCommand() {
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
+  
 }
