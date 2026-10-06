@@ -47,27 +47,66 @@ public class RobotStateCommand extends Command {
         switch (state) {
 
             case IDLE:
-                runIdle();
+                feeder.setState(Feeder.State.IDLE);
+                hood.setState(Hood.State.IDLE);
+                if (isInAllianceArea()) {
+                    shooter.setState(Shooter.State.WARM_UP);
+                } else {
+                    shooter.setState(Shooter.State.IDLE);
+                }
                 break;
 
             case HOLD:
-                runHold();
+                if (!hasBalls()) {
+                    setState(State.IDLE);
+                }
+                feeder.setState(Feeder.State.HOLD);
+                hood.setState(Hood.State.IDLE);
+                shooter.setState(Shooter.State.IDLE);
                 break;
 
             case SHOOTING:
-                runShooting();
+                if (!hasBalls() || !isInAllianceArea() || !isActivePeriod()) {
+                    setState(State.IDLE);
+                    return;
+                }
+
+                hood.setState(Hood.State.SHOOT);
+
+                if (!hood.atShootPosition()) {
+                    shooter.setState(Shooter.State.IDLE);
+                    feeder.setState(Feeder.State.IDLE);
+                    return;
+                }
+
+                shooter.setState(Shooter.State.SHOOT);
+
+                if (!shooter.atShootVelocity()) {
+                    feeder.setState(Feeder.State.IDLE);
+                    return;
+                }
+
+                feeder.setState(Feeder.State.FORWARD);
                 break;
 
             case EJECT:
-                runEject();
+                if (!hasBalls()) {
+                    setState(State.IDLE);
+                } else {
+                    feeder.setState(Feeder.State.FORWARD);
+                    hood.setState(Hood.State.EJECT);
+                    shooter.setState(Shooter.State.EJECT);
+                }
                 break;
 
             case OPEN_WALLS:
-                runIdle();
+                setState(State.IDLE);
+                //עלמה אמרה שכי אין את המערכות לשים את המצב באידל
                 break;
 
             case INTAKE:
-                runIdle();
+                setState(State.IDLE);
+                 //עלמה אמרה שכי אין את המערכות לשים את המצב באידל
                 break;
 
         }
@@ -78,59 +117,8 @@ public class RobotStateCommand extends Command {
         state = newState;
     }
 
-    private void runIdle() {
-        feeder.setState(Feeder.State.IDLE);
-        hood.setState(Hood.State.IDLE);
-        if (isInAllianceArea()) {
-            shooter.setState(Shooter.State.WARM_UP);
-        } else {
-            shooter.setState(Shooter.State.IDLE);
-        }
-    }
-
-    private void runHold() {
-        if (!hasBalls()) {
-            setState(State.IDLE);
-        }
-        feeder.setState(Feeder.State.HOLD);
-        hood.setState(Hood.State.IDLE);
-        shooter.setState(Shooter.State.IDLE);
-
-    }
-
-    private void runShooting() {
-        if (!hasBalls() || !isInAllianceArea() || !isActivePeriod()) {
-            setState(State.IDLE);
-            return;
-        }
-
-        hood.setState(Hood.State.SHOOT);
-
-        if (!hood.atShootPosition()) {
-            shooter.setState(Shooter.State.IDLE);
-            feeder.setState(Feeder.State.IDLE);
-            return;
-        }
-
-        shooter.setState(Shooter.State.SHOOT);
-
-        if (!shooter.atShootVelocity()) {
-            feeder.setState(Feeder.State.IDLE);
-            return;
-        }
-
-        feeder.setState(Feeder.State.FORWARD);
-    }
-
-    private void runEject() {
-        if (!hasBalls()) {
-            setState(State.IDLE);
-        } else {
-            feeder.setState(Feeder.State.FORWARD);
-            hood.setState(Hood.State.EJECT);
-            shooter.setState(Shooter.State.EJECT);
-        }
-
+    public State getState() {
+        return state;
     }
 
     private boolean hasBalls() {

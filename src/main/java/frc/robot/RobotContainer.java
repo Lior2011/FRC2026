@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.RobotStateCommand;
+import frc.robot.commands.RobotStateCommand.State;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Feeder.Feeder;
@@ -34,14 +35,21 @@ public class RobotContainer {
 
     new Trigger(() -> driverController.circle().getAsBoolean() && !feeder.isEmpty())
         .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.SHOOTING)));
-    new Trigger(() -> driverController.cross().getAsBoolean())
-        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.EJECT)));
     new Trigger(() -> driverController.touchpad().getAsBoolean())
         .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.IDLE)));
-    new Trigger(() -> !driverController.circle().getAsBoolean() && !feeder.isEmpty())
-        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.HOLD)));
-    new Trigger(() -> !driverController.triangle().getAsBoolean() && !feeder.isEmpty())
+    new Trigger(() -> driverController.cross().getAsBoolean())
+        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.EJECT)));
+    new Trigger(() -> driverController.L1().getAsBoolean() && !driverController.circle().getAsBoolean() )
         .onTrue(new InstantCommand(() -> hood.setState(Hood.State.HOMING)));
+    new Trigger(() -> driverController.triangle().getAsBoolean())
+        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.INTAKE)));
+    new Trigger(() -> driverController.L2().getAsBoolean())
+        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.OPEN_WALLS)));
+    new Trigger(() -> !driverController.triangle().getAsBoolean() && !feeder.isEmpty() && robotStateCommand.getState() != State.SHOOTING && robotStateCommand.getState() != State.EJECT)
+        .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.HOLD)));
+   
+    //השוטר מתכונן לירי אוטומטית כשרובוט באידל ובצד שלו של הברית
+    
 
   }
 

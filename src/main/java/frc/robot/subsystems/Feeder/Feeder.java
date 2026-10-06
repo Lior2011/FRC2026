@@ -37,7 +37,6 @@ public class Feeder extends SubsystemBase {
 
   public Feeder() {
     feederMotor = new TalonFX(PortMap.feeder.FEEDER_MOTOR);
-
     feederSensor = new DigitalInput(PortMap.feeder.FEEDER_SENSOR);
     feederConfig = new TalonFXConfiguration();
     config();
