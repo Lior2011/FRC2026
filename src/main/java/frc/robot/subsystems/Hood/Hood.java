@@ -132,6 +132,8 @@ public class Hood extends SubsystemBase {
   @Override
   public void periodic() {
     runState();
+    MALog.log("/subsystems/Hood/Position", getPosition());
+    MALog.log("/subsystems/Hood/State", getState().name());
     BaseStatusSignal.refreshAll(positionSignal);
   }
 }

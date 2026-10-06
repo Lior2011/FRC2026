@@ -146,6 +146,8 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
+        MALog.log("/subsystems/Shooter/Velocity", getVelocity());
+        MALog.log("/subsystems/Shooter/State", getState().name());
         runState();
         BaseStatusSignal.refreshAll(velocitySignal);
     }

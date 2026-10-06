@@ -107,6 +107,7 @@ public class Feeder extends SubsystemBase {
 
   @Override
   public void periodic() {
+    MALog.log("/subsystems/Feeder/State", getState().name());
     runState();
 
   }

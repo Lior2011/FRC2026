@@ -2,7 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-
+import frc.robot.MALog;
 import frc.robot.subsystems.Feeder.Feeder;
 import frc.robot.subsystems.Feeder.FeederConstants;
 import frc.robot.subsystems.Hood.Hood;
@@ -101,12 +101,12 @@ public class RobotStateCommand extends Command {
 
             case OPEN_WALLS:
                 setState(State.IDLE);
-                //עלמה אמרה שכי אין את המערכות לשים את המצב באידל
+                //עלמה אמרה שכי אין את המערכות בשביל זה לשים את המצב באידל
                 break;
 
             case INTAKE:
                 setState(State.IDLE);
-                 //עלמה אמרה שכי אין את המערכות לשים את המצב באידל
+                 //כנל על זה
                 break;
 
         }
@@ -142,6 +142,7 @@ public class RobotStateCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        MALog.log("/commands/RobotStateCommand/State", getState().name());
         setState(State.IDLE);
     }
 }
