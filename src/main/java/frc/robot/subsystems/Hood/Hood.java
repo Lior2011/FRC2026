@@ -109,11 +109,6 @@ public class Hood extends SubsystemBase {
     setState(State.IDLE);
   }
 
-  public void homing() {
-    setState(State.HOMING);
-
-  }
-
   public double getPosition() {
     return positionSignal.getValueAsDouble();
   }

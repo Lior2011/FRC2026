@@ -43,6 +43,9 @@ public class RobotStateCommand extends Command {
 
     @Override
     public void execute() {
+        MALog.log("/commands/RobotStateCommand/State", getState().name());
+        //לא הייתי בטוחה איפה לשים את זה בקומנדים אז שמתי פה כי זה הכי הגיוני
+    
 
         switch (state) {
 
@@ -142,7 +145,6 @@ public class RobotStateCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        MALog.log("/commands/RobotStateCommand/State", getState().name());
         setState(State.IDLE);
     }
 }
