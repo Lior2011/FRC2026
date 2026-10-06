@@ -35,7 +35,8 @@ public class RobotContainer {
 
     new Trigger(() -> driverController.circle().getAsBoolean() && !feeder.isEmpty())
         .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.SHOOTING)));
-    new Trigger(() -> driverController.touchpad().getAsBoolean())
+    new Trigger(() -> driverController.touchpad().getAsBoolean() || robotStateCommand.getState() == State.INTAKE && !driverController.triangle().getAsBoolean()&&!feeder.isEmpty()||!driverController.cross().getAsBoolean())
+    //כל שאר התנאים להכינס לאידל בקומנד
         .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.IDLE)));
     new Trigger(() -> driverController.cross().getAsBoolean())
         .onTrue(new InstantCommand(() -> robotStateCommand.setState(RobotStateCommand.State.EJECT)));
